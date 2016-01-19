@@ -35,6 +35,7 @@ typedef NS_ENUM(NSUInteger, MHBackButtonState) {
 @property (nonatomic,strong) UIColor *videoProgressTintColor; //Default Black
 @property (nonatomic)        BOOL showMHShareViewInsteadOfActivityViewController; //Default YES
 @property (nonatomic)        BOOL hideShare; //Default NO
+@property (nonatomic)        BOOL hideTrash; //Default NO
 @property (nonatomic)        BOOL useCustomBackButtonImageOnImageViewer; //Default YES
 @property (nonatomic)        BOOL showOverView; //Default YES
 @property (nonatomic)        MHBackButtonState backButtonState; //Default MHBackButtonStateWithBackArrow

@@ -865,7 +865,16 @@
         
         if (item.galleryType == MHGalleryTypeImage) {
             
-            if ([item.URLString rangeOfString:MHAssetLibrary].location != NSNotFound && item.URLString) {
+            if (item.asset) {
+                PHImageRequestOptions *options = [PHImageRequestOptions new];
+                options.resizeMode = PHImageRequestOptionsResizeModeFast;
+                options.deliveryMode = PHImageRequestOptionsDeliveryModeHighQualityFormat;
+                [[PHImageManager defaultManager]  requestImageForAsset:item.asset targetSize:PHImageManagerMaximumSize contentMode:PHImageContentModeDefault options:options resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {
+                    MHImageURL *imageURL = [MHImageURL.alloc initWithURL:nil
+                                                                   image:result];
+                    [weakSelf addDataToDownloadArray:imageURL];
+                }];
+            } else if ([item.URLString rangeOfString:MHAssetLibrary].location != NSNotFound && item.URLString) {
                 [MHGallerySharedManager.sharedManager getImageFromAssetLibrary:item.URLString
                                                                      assetType:MHAssetImageTypeFull
                                                                   successBlock:^(UIImage *image, NSError *error) {

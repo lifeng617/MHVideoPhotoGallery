@@ -12,26 +12,26 @@
 
 @implementation UIImageView (MHGallery)
 
--(void)setThumbWithURL:(NSString*)URL
-          successBlock:(void (^)(UIImage *image,NSUInteger videoDuration,NSError *error))succeedBlock{
-    
-    __weak typeof(self) weakSelf = self;
-    
-    [MHGallerySharedManager.sharedManager startDownloadingThumbImage:URL
-                                                        successBlock:^(UIImage *image, NSUInteger videoDuration, NSError *error) {
-                                                            
-                                                            if (!weakSelf) return;
-                                                            dispatch_main_sync_safe(^{
-                                                                if (!weakSelf) return;
-                                                                if (image){
-                                                                    weakSelf.image = image;
-                                                                    [weakSelf setNeedsLayout];
-                                                                }
-                                                                if (succeedBlock) {                                                                     succeedBlock(image,videoDuration,error);
-                                                                }
-                                                            });
-                                                        }];
-}
+//-(void)setThumbWithURL:(NSString*)URL
+//          successBlock:(void (^)(UIImage *image,NSUInteger videoDuration,NSError *error))succeedBlock{
+//    
+//    __weak typeof(self) weakSelf = self;
+//    
+//    [MHGallerySharedManager.sharedManager startDownloadingThumbImage:URL
+//                                                        successBlock:^(UIImage *image, NSUInteger videoDuration, NSError *error) {
+//                                                            
+//                                                            if (!weakSelf) return;
+//                                                            dispatch_main_sync_safe(^{
+//                                                                if (!weakSelf) return;
+//                                                                if (image){
+//                                                                    weakSelf.image = image;
+//                                                                    [weakSelf setNeedsLayout];
+//                                                                }
+//                                                                if (succeedBlock) {                                                                     succeedBlock(image,videoDuration,error);
+//                                                                }
+//                                                            });
+//                                                        }];
+//}
 
 -(void)setImageForMHGalleryItem:(MHGalleryItem*)item
                       imageType:(MHImageType)imageType
@@ -39,7 +39,24 @@
     
     __weak typeof(self) weakSelf = self;
     
-    if ([item.URLString rangeOfString:MHAssetLibrary].location != NSNotFound && item.URLString) {
+    if (item.asset) {
+        
+        CGSize size = PHImageManagerMaximumSize;
+        PHImageContentMode contentMode = PHImageContentModeDefault;
+        if (imageType == MHImageTypeThumb) {
+            CGFloat w = [UIScreen mainScreen].bounds.size.width / 4;
+            size = CGSizeMake(w, w);
+            contentMode = PHImageContentModeAspectFill;
+        }
+        
+        PHImageRequestOptions *options = [PHImageRequestOptions new];
+        options.resizeMode = PHImageRequestOptionsResizeModeFast;
+        options.deliveryMode = PHImageRequestOptionsDeliveryModeHighQualityFormat;
+        [[PHImageManager defaultManager]  requestImageForAsset:item.asset targetSize:size contentMode:contentMode options:options resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {
+            [weakSelf setImageForImageView:result successBlock:succeedBlock];
+        }];
+        
+    } else if ([item.URLString rangeOfString:MHAssetLibrary].location != NSNotFound && item.URLString) {
         
         MHAssetImageType assetType = MHAssetImageTypeThumb;
         if (imageType == MHImageTypeFull) {

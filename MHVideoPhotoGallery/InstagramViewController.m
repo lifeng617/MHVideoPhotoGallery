@@ -10,6 +10,7 @@
 
 @interface InstagramViewController ()
 
+@property (nonatomic, strong) NSArray               *galleryItems;
 @end
 
 @implementation InstagramViewController

@@ -71,6 +71,8 @@
     [UIApplication.sharedApplication setStatusBarStyle:self.galleryViewController.preferredStatusBarStyleMH
                                               animated:YES];
     
+    [self.collectionView reloadData];
+    
 }
 
 -(UIStatusBarStyle)preferredStatusBarStyle{
@@ -177,7 +179,6 @@
             self.lastPoint = [recognizer locationInView:self.view];
             
             MHGalleryImageViewerViewController *detail = MHGalleryImageViewerViewController.new;
-            detail.galleryItems = self.galleryItems;
             detail.pageIndex = recognizer.indexPath.row;
             self.startScale = recognizer.scale/8;
             [self.navigationController pushViewController:detail
@@ -244,7 +245,6 @@
     
     MHGalleryImageViewerViewController *detail = MHGalleryImageViewerViewController.new;
     detail.pageIndex = indexPath.row;
-    detail.galleryItems = self.galleryItems;
     if ([self.navigationController isKindOfClass:MHGalleryController.class]) {
         [self.navigationController pushViewController:detail animated:YES];
     }
@@ -290,12 +290,21 @@
 -(void)getImageForItem:(MHGalleryItem*)item
         finishCallback:(void(^)(UIImage *image))FinishBlock{
     
-    [SDWebImageManager.sharedManager downloadImageWithURL:[NSURL URLWithString:item.URLString]
-                                                  options:SDWebImageContinueInBackground
-                                                 progress:nil
-                                                completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
-                                                    FinishBlock(image);
-                                                }];
+    if (item.asset) {
+        PHImageRequestOptions *options = [PHImageRequestOptions new];
+        options.resizeMode = PHImageRequestOptionsResizeModeFast;
+        options.deliveryMode = PHImageRequestOptionsDeliveryModeHighQualityFormat;
+        [[PHImageManager defaultManager]  requestImageForAsset:item.asset targetSize:PHImageManagerMaximumSize contentMode:PHImageContentModeDefault options:options resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {
+            FinishBlock(result);
+        }];
+    } else {
+        [SDWebImageManager.sharedManager downloadImageWithURL:[NSURL URLWithString:item.URLString]
+                                                      options:SDWebImageContinueInBackground
+                                                     progress:nil
+                                                    completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+                                                        FinishBlock(image);
+                                                    }];
+    }
 }
 -(void)didReceiveMemoryWarning{
     [super didReceiveMemoryWarning];

@@ -10,6 +10,24 @@
 
 @implementation MHGalleryItem
 
+- (instancetype)initWithPHAseet:(PHAsset *)asset
+{
+    self = [super init];
+    
+    self.asset = asset;
+    if (asset.mediaType == PHAssetMediaTypeImage) {
+        self.galleryType = MHGalleryTypeImage;
+    } else {
+        self.galleryType = MHGalleryTypeVideo;
+    }
+    
+    return self;
+}
++ (instancetype)itemWithPHAseet:(PHAsset *)asset
+{
+    return [self.class.alloc initWithPHAseet:asset];
+}
+
 - (instancetype)initWithImage:(UIImage*)image{
     self = [super init];
     if (!self)

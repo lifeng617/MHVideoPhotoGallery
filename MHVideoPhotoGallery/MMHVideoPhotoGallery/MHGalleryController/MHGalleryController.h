@@ -18,6 +18,7 @@
 
 @protocol MHGalleryDelegate<NSObject>
 @optional
+-(BOOL)galleryController:(MHGalleryController*)galleryController shouldRemoveItemAtIndex:(NSInteger)index;
 -(void)galleryController:(MHGalleryController*)galleryController didShowIndex:(NSInteger)index;
 -(BOOL)galleryController:(MHGalleryController*)galleryController shouldHandleURL:(NSURL *)URL;
 -(NSArray<MHBarButtonItem *>*)customizeableToolBarItems:(NSArray<MHBarButtonItem *>*)toolBarItems forGalleryItem:(MHGalleryItem*)galleryItem;
@@ -40,6 +41,7 @@
  *  @return the number of Items you want to Display
  */
 - (NSInteger)numberOfItemsInGallery:(MHGalleryController*)galleryController;
+- (NSArray *)itemArray;
 @end
 
 @interface MHGalleryController : UINavigationController <MHGalleryDataSource>

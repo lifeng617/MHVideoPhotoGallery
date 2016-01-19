@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <Photos/Photos.h>
 #import "MHGallery.h"
 
 typedef NS_ENUM(NSUInteger, MHGalleryType) {
@@ -27,6 +28,12 @@ typedef NS_ENUM(NSUInteger, MHGalleryType) {
 @property (nonatomic,strong) NSString           *descriptionString;
 @property (nonatomic,strong) NSAttributedString *attributedString;
 @property (nonatomic,assign) MHGalleryType       galleryType;
+
+@property (nonatomic, strong) PHAsset *asset;
+
+- (instancetype)initWithPHAseet:(PHAsset *)asset;
++ (instancetype)itemWithPHAseet:(PHAsset *)asset;
+
 /**
  *  MHGalleryItem initWithURL:galleryType
  *

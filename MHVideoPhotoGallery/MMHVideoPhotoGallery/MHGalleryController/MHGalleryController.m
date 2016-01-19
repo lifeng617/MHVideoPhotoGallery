@@ -39,8 +39,6 @@
 }
 
 -(void)setGalleryItems:(NSArray *)galleryItems{
-    self.overViewViewController.galleryItems = galleryItems;
-    self.imageViewerViewController.galleryItems = galleryItems;
     _galleryItems = galleryItems;
 }
 
@@ -66,6 +64,9 @@
 }
 -(NSInteger)numberOfItemsInGallery:(MHGalleryController *)galleryController{
     return self.galleryItems.count;
+}
+-(NSArray *)itemArray {
+    return self.galleryItems;
 }
 
 -(void)reloadData {

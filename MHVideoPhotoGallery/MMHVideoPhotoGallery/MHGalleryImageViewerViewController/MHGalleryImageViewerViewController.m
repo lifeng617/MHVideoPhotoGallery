@@ -48,6 +48,7 @@
 @property (nonatomic, strong) MHBarButtonItem          *leftBarButton;
 @property (nonatomic, strong) MHBarButtonItem          *rightBarButton;
 @property (nonatomic, strong) MHBarButtonItem          *playStopBarButton;
+@property (nonatomic, strong) MHBarButtonItem          *trashBarButton;
 @end
 
 @implementation MHGalleryImageViewerViewController
@@ -259,6 +260,20 @@
         self.shareBarButton.width = 30;
     }
     
+    if (self.UICustomization.hideTrash) {
+        self.trashBarButton = [MHBarButtonItem.alloc initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace
+                                                                          target:self
+                                                                          action:nil];
+        self.trashBarButton.type = MHBarButtonItemTypeFlexible;
+        self.trashBarButton.width = 30;
+    } else {
+        self.trashBarButton = [MHBarButtonItem.alloc initWithBarButtonSystemItem:UIBarButtonSystemItemTrash
+                                                                          target:self
+                                                                          action:@selector(trashPressed)];
+        self.trashBarButton.type = MHBarButtonItemTypeTrash;
+        self.trashBarButton.width = 30;
+    }
+    
     
     self.toolbar.barTintColor = self.UICustomization.barTintColor;
     self.toolbar.barStyle = self.UICustomization.barStyle;
@@ -346,6 +361,10 @@
     return UIApplication.sharedApplication.statusBarOrientation;
 }
 
+-(NSArray *)galleryItems {
+    return [self.galleryViewController.dataSource itemArray];
+}
+
 -(NSInteger)numberOfGalleryItems{
     return [self.galleryViewController.dataSource numberOfItemsInGallery:self.galleryViewController];
 }
@@ -408,6 +427,77 @@
                 act.popoverPresentationController.barButtonItem = self.shareBarButton;
             }
         }        
+    }
+}
+
+-(void)trashPressed{
+    UIPageViewControllerNavigationDirection direction = UIPageViewControllerNavigationDirectionForward;
+    
+    NSInteger indexToRemove = self.pageIndex;
+    NSInteger nextIndex = NSNotFound;
+    NSInteger count = [self numberOfGalleryItems];
+    MHGalleryItem *item = [self itemForIndex:indexToRemove];
+    
+    
+    if (indexToRemove < count - 1)
+    {
+        item = [self itemForIndex:indexToRemove + 1];
+        nextIndex = indexToRemove;
+        direction = UIPageViewControllerNavigationDirectionForward;
+    }
+    else if (indexToRemove > 0)
+    {
+        item = [self itemForIndex:indexToRemove - 1];
+        nextIndex = indexToRemove - 1;
+        direction = UIPageViewControllerNavigationDirectionReverse;
+    }
+    else
+        nextIndex = NSNotFound;
+    
+    if ([self.galleryViewController.galleryDelegate respondsToSelector:@selector(galleryController:shouldRemoveItemAtIndex:)] &&
+        [self.galleryViewController.galleryDelegate galleryController:self.galleryViewController shouldRemoveItemAtIndex:indexToRemove]) {
+        self.pageViewController.view.userInteractionEnabled = NO;
+//        self.removeAnimating = YES;
+        
+        if (nextIndex != NSNotFound)
+        {
+            
+            MHImageViewController *imageViewController =[MHImageViewController imageViewControllerForMHMediaItem:item viewController:self];
+            imageViewController.pageIndex  = nextIndex;
+            
+            __weak typeof(self) wself = self;
+            [self.pageViewController setViewControllers:@[imageViewController] direction:direction animated:YES completion:^(BOOL finished) {
+                
+                __strong typeof (self) sself = wself;
+                
+                if (!sself)
+                    return;
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    
+                    __strong typeof (self) sself = wself;
+                    
+                    if (!sself)
+                        return;
+                    
+                    MHImageViewController *vc = [sself.pageViewController.viewControllers firstObject];
+                    
+                    [sself.pageViewController setViewControllers:@[vc] direction:UIPageViewControllerNavigationDirectionForward animated:NO completion:nil];
+                    
+                    [sself updateTitleForIndex:vc.pageIndex];
+//                    ssself.removeAnimating = NO;
+                    sself.pageViewController.view.userInteractionEnabled = YES;
+                    sself.pageIndex = vc.pageIndex;
+                    [sself updateToolBarForItem:[sself itemForIndex:sself.pageIndex]];
+                });
+            }];
+        }
+        else
+        {
+//            self.removeAnimating = NO;
+//            self.pageViewController.view.userInteractionEnabled = YES;
+//            [self.navigationController popViewControllerAnimated:YES];
+        }
     }
 }
 
@@ -551,9 +641,9 @@
         }else{
             [self changeToPlayButton];
         }
-        [self setToolbarItemsWithBarButtons:@[self.shareBarButton,flex,self.leftBarButton,flex,self.playStopBarButton,flex,self.rightBarButton,flex,fixed] forGalleryItem:item];
+        [self setToolbarItemsWithBarButtons:@[self.shareBarButton,flex,self.leftBarButton,flex,self.playStopBarButton,flex,self.rightBarButton,flex,self.trashBarButton] forGalleryItem:item];
     }else{
-        [self setToolbarItemsWithBarButtons:@[self.shareBarButton,flex,self.leftBarButton,flex,self.rightBarButton,flex,fixed] forGalleryItem:item];
+        [self setToolbarItemsWithBarButtons:@[self.shareBarButton,flex,self.leftBarButton,flex,self.rightBarButton,flex,self.trashBarButton] forGalleryItem:item];
     }
 }
 
@@ -1018,17 +1108,16 @@
             }];
             
         }else{
-            [MHGallerySharedManager.sharedManager startDownloadingThumbImage:self.item.URLString
-                                                                successBlock:^(UIImage *image,NSUInteger videoDuration,NSError *error) {
-                                                                    if (!error) {
-                                                                        [weakSelf handleGeneratedThumb:image
-                                                                                         videoDuration:videoDuration
-                                                                                             urlString:self.item.URLString];
-                                                                    }else{
-                                                                        [weakSelf changeToErrorImage];
-                                                                    }
-                                                                    [weakSelf.act stopAnimating];
-                                                                }];
+            [[MHGallerySharedManager sharedManager] startDownloadingThumbnailForItem:self.item successBlock:^(UIImage *image, NSUInteger videoDuration, NSError *error) {
+                if (!error) {
+                    [weakSelf handleGeneratedThumb:image
+                                     videoDuration:videoDuration
+                                         urlString:self.item.URLString];
+                }else{
+                    [weakSelf changeToErrorImage];
+                }
+                [weakSelf.act stopAnimating];
+            }];
         }
     }
     
@@ -1064,7 +1153,7 @@
             [weakSelf autoPlayVideo];
             return;
         }
-        [[MHGallerySharedManager sharedManager] getURLForMediaPlayer:self.item.URLString successBlock:^(NSURL *URL, NSError *error) {
+        [[MHGallerySharedManager sharedManager] getURLForMediaPlayerOfItem:self.item successBlock:^(NSURL *URL, NSError *error) {
             if (error || URL == nil) {
                 [weakSelf changePlayButtonToUnPlay];
             }else{
@@ -1373,7 +1462,11 @@
     self.moviePlayer = MPMoviePlayerController.new;
     self.moviePlayer.backgroundView.backgroundColor = [self.viewController.UICustomization MHGalleryBackgroundColorForViewMode:[self currentViewMode]];
     self.moviePlayer.view.backgroundColor = [self.viewController.UICustomization MHGalleryBackgroundColorForViewMode:[self currentViewMode]];
-    self.moviePlayer.movieSourceType = MPMovieSourceTypeStreaming;
+    if ([URL.absoluteString hasPrefix:@"file"]) {
+        self.moviePlayer.movieSourceType = MPMovieSourceTypeFile;
+    } else {
+        self.moviePlayer.movieSourceType = MPMovieSourceTypeStreaming;
+    }
     self.moviePlayer.controlStyle = MPMovieControlStyleNone;
     self.moviePlayer.contentURL = URL;
     

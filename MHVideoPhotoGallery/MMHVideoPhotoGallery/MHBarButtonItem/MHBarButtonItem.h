@@ -14,6 +14,7 @@ typedef NS_ENUM(NSUInteger, MHBarButtonItemType) {
     MHBarButtonItemTypeRigth,
     MHBarButtonItemTypePlayPause,
     MHBarButtonItemTypeShare,
+    MHBarButtonItemTypeTrash,
     MHBarButtonItemTypeFlexible,
     MHBarButtonItemTypeFixed,
     MHBarButtonItemTypeCustom

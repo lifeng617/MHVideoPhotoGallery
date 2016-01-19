@@ -47,10 +47,9 @@
     if(item.galleryType == MHGalleryTypeImage){
         [cell.iv sd_setImageWithURL:[NSURL URLWithString:item.URLString]];
     }else{
-        [[MHGallerySharedManager sharedManager] startDownloadingThumbImage:item.URLString
-                                                              successBlock:^(UIImage *image, NSUInteger videoDuration, NSError *error) {
-                                                                  cell.iv.image = image;
-                                                              }];
+        [[MHGallerySharedManager sharedManager] startDownloadingThumbnailForItem:item successBlock:^(UIImage *image, NSUInteger videoDuration, NSError *error) {
+            cell.iv.image = image;
+        }];
     }
     
     cell.labelText.text = item.descriptionString;

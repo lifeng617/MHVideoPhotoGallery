@@ -202,6 +202,27 @@
     return nil;
 }
 
+-(void)getURLForMediaPlayerOfItem:(MHGalleryItem *)item
+                     successBlock:(void (^)(NSURL *URL,NSError *error))succeedBlock
+{
+    if (item.asset) {
+        PHVideoRequestOptions *options = [PHVideoRequestOptions new];
+        options.deliveryMode = PHVideoRequestOptionsDeliveryModeMediumQualityFormat;
+        
+        [[PHImageManager defaultManager] requestAVAssetForVideo:item.asset options:options resultHandler:^(AVAsset * _Nullable asset, AVAudioMix * _Nullable audioMix, NSDictionary * _Nullable info) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if ([asset isKindOfClass:[AVURLAsset class]]) {
+                    succeedBlock(((AVURLAsset *)asset).URL, nil);
+                } else {
+                    succeedBlock(nil, nil);
+                }
+            });
+        }];
+    } else {
+        [self getURLForMediaPlayer:item.URLString successBlock:succeedBlock];
+    }
+}
+
 -(void)getURLForMediaPlayer:(NSString*)URLString
                successBlock:(void (^)(NSURL *URL,NSError *error))succeedBlock{
     
@@ -398,6 +419,25 @@
                                }];
     }
     
+}
+
+-(void)startDownloadingThumbnailForItem:(MHGalleryItem *)item
+                           successBlock:(void (^)(UIImage *image,NSUInteger videoDuration,NSError *error))succeedBlock
+{
+    if (item.asset) {
+        CGFloat w = [UIScreen mainScreen].bounds.size.width / 4;
+        CGSize size = CGSizeMake(w, w);
+        PHImageContentMode contentMode = PHImageContentModeAspectFill;
+        
+        PHImageRequestOptions *options = [PHImageRequestOptions new];
+        options.resizeMode = PHImageRequestOptionsResizeModeFast;
+        options.deliveryMode = PHImageRequestOptionsDeliveryModeHighQualityFormat;
+        [[PHImageManager defaultManager]  requestImageForAsset:item.asset targetSize:size contentMode:contentMode options:options resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {
+            succeedBlock(result, item.asset.duration, nil);
+        }];
+    } else {
+        [self startDownloadingThumbImage:item.URLString successBlock:succeedBlock];
+    }
 }
 
 -(void)startDownloadingThumbImage:(NSString*)urlString
