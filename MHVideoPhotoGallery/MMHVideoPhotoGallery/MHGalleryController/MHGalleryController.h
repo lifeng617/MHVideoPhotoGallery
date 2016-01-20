@@ -18,7 +18,7 @@
 
 @protocol MHGalleryDelegate<NSObject>
 @optional
--(BOOL)galleryController:(MHGalleryController*)galleryController shouldRemoveItemAtIndex:(NSInteger)index;
+-(void)galleryController:(MHGalleryController*)galleryController shouldRemoveItemAtIndex:(NSInteger)index resultBlock:(void (^)(BOOL))block;
 -(void)galleryController:(MHGalleryController*)galleryController didShowIndex:(NSInteger)index;
 -(BOOL)galleryController:(MHGalleryController*)galleryController shouldHandleURL:(NSURL *)URL;
 -(NSArray<MHBarButtonItem *>*)customizeableToolBarItems:(NSArray<MHBarButtonItem *>*)toolBarItems forGalleryItem:(MHGalleryItem*)galleryItem;

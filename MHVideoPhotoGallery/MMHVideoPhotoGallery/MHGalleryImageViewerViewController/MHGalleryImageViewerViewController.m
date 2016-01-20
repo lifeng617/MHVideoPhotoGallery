@@ -467,33 +467,39 @@
 }
 
 -(void)trashPressed{
-    UIPageViewControllerNavigationDirection direction = UIPageViewControllerNavigationDirectionForward;
-    
-    NSInteger indexToRemove = self.pageIndex;
-    NSInteger nextIndex = NSNotFound;
-    NSInteger count = [self numberOfGalleryItems];
-    MHGalleryItem *item = [self itemForIndex:indexToRemove];
-    
-    
-    if (indexToRemove < count - 1)
-    {
-        item = [self itemForIndex:indexToRemove + 1];
-        nextIndex = indexToRemove;
-        direction = UIPageViewControllerNavigationDirectionForward;
+    if (![self.galleryViewController.galleryDelegate respondsToSelector:@selector(galleryController:shouldRemoveItemAtIndex:resultBlock:)]) {
+        return;
     }
-    else if (indexToRemove > 0)
-    {
-        item = [self itemForIndex:indexToRemove - 1];
-        nextIndex = indexToRemove - 1;
-        direction = UIPageViewControllerNavigationDirectionReverse;
-    }
-    else
-        nextIndex = NSNotFound;
     
-    if ([self.galleryViewController.galleryDelegate respondsToSelector:@selector(galleryController:shouldRemoveItemAtIndex:)] &&
-        [self.galleryViewController.galleryDelegate galleryController:self.galleryViewController shouldRemoveItemAtIndex:indexToRemove]) {
-        self.pageViewController.view.userInteractionEnabled = NO;
-//        self.removeAnimating = YES;
+    self.pageViewController.view.userInteractionEnabled = NO;
+    [self.galleryViewController.galleryDelegate galleryController:self.galleryViewController shouldRemoveItemAtIndex:self.pageIndex resultBlock:^(BOOL canRemove) {
+        if (!canRemove) {
+            self.pageViewController.view.userInteractionEnabled = YES;
+            return;
+        }
+        
+        UIPageViewControllerNavigationDirection direction = UIPageViewControllerNavigationDirectionForward;
+        
+        NSInteger indexToRemove = self.pageIndex;
+        NSInteger nextIndex = NSNotFound;
+        NSInteger count = [self numberOfGalleryItems];
+        MHGalleryItem *item = [self itemForIndex:indexToRemove];
+        
+        
+        if (indexToRemove < count - 1)
+        {
+            item = [self itemForIndex:indexToRemove + 1];
+            nextIndex = indexToRemove;
+            direction = UIPageViewControllerNavigationDirectionForward;
+        }
+        else if (indexToRemove > 0)
+        {
+            item = [self itemForIndex:indexToRemove - 1];
+            nextIndex = indexToRemove - 1;
+            direction = UIPageViewControllerNavigationDirectionReverse;
+        }
+        else
+            nextIndex = NSNotFound;
         
         if (nextIndex != NSNotFound)
         {
@@ -531,10 +537,11 @@
         else
         {
 //            self.removeAnimating = NO;
-//            self.pageViewController.view.userInteractionEnabled = YES;
-//            [self.navigationController popViewControllerAnimated:YES];
+            self.pageViewController.view.userInteractionEnabled = YES;
+            [self donePressed];
         }
-    }
+        
+    }];
 }
 
 -(void)updateTitleLabelForIndex:(NSInteger)index{
