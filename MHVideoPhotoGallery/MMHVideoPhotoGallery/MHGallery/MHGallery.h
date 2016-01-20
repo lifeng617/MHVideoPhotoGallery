@@ -1,4 +1,10 @@
 
+
+typedef NS_ENUM(NSUInteger, MHGalleryType) {
+    MHGalleryTypeImage,
+    MHGalleryTypeVideo
+};
+
 #import <CoreMedia/CoreMedia.h>
 #import <AVFoundation/AVFoundation.h>
 #import <ImageIO/ImageIO.h>

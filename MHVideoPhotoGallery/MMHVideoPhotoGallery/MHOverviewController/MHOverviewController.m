@@ -17,6 +17,7 @@
 
 @interface MHOverviewController ()
 
+@property (nonatomic, strong) UILabel                *navTitleLabel;
 @property (nonatomic, strong) MHTransitionShowDetail *interactivePushTransition;
 @property (nonatomic        ) CGPoint                lastPoint;
 @property (nonatomic        ) CGFloat                startScale;
@@ -30,7 +31,26 @@
     
     self.automaticallyAdjustsScrollViewInsets = NO;
     
-    self.title =  MHGalleryLocalizedString(@"overview.title.current");
+    if (self.galleryViewController.galleryTitle) {
+        
+        UIView *titleView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 200, 30)];
+        
+        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 200, 16)];
+        label.text = self.galleryViewController.galleryTitle;
+        label.textAlignment = NSTextAlignmentCenter;
+        label.font = [UIFont boldSystemFontOfSize:16];
+        [titleView addSubview:label];
+        
+        UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 18, 200, 14)];
+        titleLabel.font = [UIFont systemFontOfSize:12];
+        titleLabel.textAlignment = NSTextAlignmentCenter;
+        [titleView addSubview:titleLabel];
+        
+        self.navTitleLabel = titleLabel;
+        self.navigationItem.titleView = titleView;
+    } else {
+        self.title =  MHGalleryLocalizedString(@"overview.title.current");
+    }
     
     UIBarButtonItem *doneBarButton = [UIBarButtonItem.alloc initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(donePressed)];
     
@@ -70,6 +90,37 @@
     
     [UIApplication.sharedApplication setStatusBarStyle:self.galleryViewController.preferredStatusBarStyleMH
                                               animated:YES];
+    
+    
+    
+    if (self.navTitleLabel && [self.galleryViewController.dataSource respondsToSelector:@selector(numberOfItemsInGallery:forType:)]) {
+        NSInteger photos = [self.galleryViewController.dataSource numberOfItemsInGallery:self.galleryViewController forType:MHGalleryTypeImage];
+        NSInteger videos = [self.galleryViewController.dataSource numberOfItemsInGallery:self.galleryViewController forType:MHGalleryTypeVideo];
+        
+        NSString *title = nil;
+        
+        if (photos > 1) {
+            title = [NSString stringWithFormat:@"%d Photos, ", (int)photos];
+        } else if (photos == 1) {
+            title = @"1 Photo, ";
+        }
+        
+        if (videos > 1) {
+            title = [title stringByAppendingFormat:@"%d Videos", (int)videos];
+        } else if (videos == 1) {
+            title = [title stringByAppendingString:@"1 Video"];
+        }
+        
+        
+        if (title == nil) {
+            title = @"No Photos";
+        } else if ([title hasSuffix:@", "]) {
+            title = [title substringToIndex:[title length] - 2];
+        }
+            
+        
+        self.navTitleLabel.text = title;
+    }
     
     [self.collectionView reloadData];
     

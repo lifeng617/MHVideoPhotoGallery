@@ -50,7 +50,7 @@
         
         PHFetchResult *result = [PHAsset fetchAssetsWithOptions:options];
         [result enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            [items addObject:[MHGalleryItem itemWithPHAseet:obj]];
+            [items addObject:[MHGalleryItem itemWithPHAsset:obj]];
         }];
         
         [self.allData addObject:[[MHGallerySectionItem alloc] initWithSectionName:@"All" items:items]];
@@ -124,9 +124,11 @@
             MHGalleryController *gallery = [[MHGalleryController alloc]initWithPresentationStyle:MHGalleryViewModeImageViewerNavigationBarShown];
             gallery.galleryDelegate = self;
             gallery.dataSource = self;
+            gallery.galleryTitle = @"All Photos";
             gallery.presentationIndex = [galleryData count] - 1;
             gallery.UICustomization.hideShare = YES;
             gallery.UICustomization.hideArrows = YES;
+            gallery.UICustomization.backButtonState = MHBackButtonStateWithoutBackArrow;
             
             __weak MHGalleryController *blockGallery = gallery;
             
@@ -150,6 +152,15 @@
 - (NSInteger)numberOfItemsInGallery:(MHGalleryController *)galleryController {
     return [self.currentItems count];
 }
+- (NSInteger)numberOfItemsInGallery:(MHGalleryController *)galleryController forType:(MHGalleryType)type {
+    NSInteger res = 0;
+    for (MHGalleryItem *item in self.currentItems) {
+        if (item.galleryType == type)
+            res ++;
+    }
+    return res;
+}
+
 - (MHGalleryItem*)itemForIndex:(NSInteger)index {
     return self.currentItems[index];
 }

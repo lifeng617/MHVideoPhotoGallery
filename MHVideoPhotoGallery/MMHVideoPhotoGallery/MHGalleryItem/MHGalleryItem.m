@@ -10,7 +10,7 @@
 
 @implementation MHGalleryItem
 
-- (instancetype)initWithPHAseet:(PHAsset *)asset
+- (instancetype)initWithPHAsset:(PHAsset *)asset
 {
     self = [super init];
     
@@ -23,9 +23,9 @@
     
     return self;
 }
-+ (instancetype)itemWithPHAseet:(PHAsset *)asset
++ (instancetype)itemWithPHAsset:(PHAsset *)asset
 {
-    return [self.class.alloc initWithPHAseet:asset];
+    return [self.class.alloc initWithPHAsset:asset];
 }
 
 - (instancetype)initWithImage:(UIImage*)image{

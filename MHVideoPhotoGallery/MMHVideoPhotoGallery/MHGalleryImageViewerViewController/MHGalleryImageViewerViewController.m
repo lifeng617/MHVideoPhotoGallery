@@ -41,6 +41,7 @@
 @end
 
 @interface MHGalleryImageViewerViewController()<MHGalleryLabelDelegate,TTTAttributedLabelDelegate>
+@property (nonatomic, strong) UILabel                  *navTitleLabel;
 @property (nonatomic, strong) MHGradientView           *bottomSuperView;
 @property (nonatomic, strong) MHGradientView           *topSuperView;
 
@@ -129,6 +130,25 @@
     
     self.UICustomization          = self.galleryViewController.UICustomization;
     self.transitionCustomization  = self.galleryViewController.transitionCustomization;
+    
+    if (self.galleryViewController.galleryTitle) {
+        
+        UIView *titleView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 200, 30)];
+        
+        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 200, 16)];
+        label.text = self.galleryViewController.galleryTitle;
+        label.textAlignment = NSTextAlignmentCenter;
+        label.font = [UIFont boldSystemFontOfSize:16];
+        [titleView addSubview:label];
+        
+        UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 18, 200, 14)];
+        titleLabel.font = [UIFont systemFontOfSize:12];
+        titleLabel.textAlignment = NSTextAlignmentCenter;
+        [titleView addSubview:titleLabel];
+        
+        self.navTitleLabel = titleLabel;
+        self.navigationItem.titleView = titleView;
+    }
     
     if (!self.UICustomization.showOverView) {
         self.navigationItem.hidesBackButton = YES;
@@ -596,7 +616,11 @@
 
 -(void)updateTitleForIndex:(NSInteger)pageIndex{
     NSString *localizedString  = MHGalleryLocalizedString(@"imagedetail.title.current");
-    self.navigationItem.title = [NSString stringWithFormat:localizedString,@(pageIndex+1),@(self.numberOfGalleryItems)];
+    if (self.navTitleLabel) {
+        self.navTitleLabel.text = [NSString stringWithFormat:localizedString,@(pageIndex+1),@(self.numberOfGalleryItems)];
+    } else {
+        self.navigationItem.title = [NSString stringWithFormat:localizedString,@(pageIndex+1),@(self.numberOfGalleryItems)];
+    }
 }
 
 

@@ -10,11 +10,6 @@
 #import <Photos/Photos.h>
 #import "MHGallery.h"
 
-typedef NS_ENUM(NSUInteger, MHGalleryType) {
-    MHGalleryTypeImage,
-    MHGalleryTypeVideo
-};
-
 @interface MHGalleryItem : NSObject
 
 @property (nonatomic,strong) UIImage            *image;
@@ -31,8 +26,8 @@ typedef NS_ENUM(NSUInteger, MHGalleryType) {
 
 @property (nonatomic, strong) PHAsset *asset;
 
-- (instancetype)initWithPHAseet:(PHAsset *)asset;
-+ (instancetype)itemWithPHAseet:(PHAsset *)asset;
+- (instancetype)initWithPHAsset:(PHAsset *)asset;
++ (instancetype)itemWithPHAsset:(PHAsset *)asset;
 
 /**
  *  MHGalleryItem initWithURL:galleryType
