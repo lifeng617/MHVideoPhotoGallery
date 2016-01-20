@@ -455,14 +455,25 @@
                                              animated:YES];
     }else{
         MHImageViewController *imageViewController = (MHImageViewController*)self.pageViewController.viewControllers.firstObject;
-        if (imageViewController.imageView.image != nil) {
+        if (imageViewController.item.galleryType == MHGalleryTypeVideo) {
+            [[MHGallerySharedManager sharedManager] getURLForMediaPlayerOfItem:imageViewController.item successBlock:^(NSURL *URL, NSError *error) {
+                if (URL && [URL.absoluteString hasPrefix:@"file"]) {
+                    UIActivityViewController *act = [UIActivityViewController.alloc initWithActivityItems:@[URL] applicationActivities:nil];
+                    [self presentViewController:act animated:YES completion:nil];
+                    
+                    if ([act respondsToSelector:@selector(popoverPresentationController)]) {
+                        act.popoverPresentationController.barButtonItem = self.shareBarButton;
+                    }
+                }
+            }];
+        } else if (imageViewController.imageView.image != nil) {
             UIActivityViewController *act = [UIActivityViewController.alloc initWithActivityItems:@[imageViewController.imageView.image] applicationActivities:nil];
             [self presentViewController:act animated:YES completion:nil];
             
             if ([act respondsToSelector:@selector(popoverPresentationController)]) {
                 act.popoverPresentationController.barButtonItem = self.shareBarButton;
             }
-        }        
+        }
     }
 }
 
