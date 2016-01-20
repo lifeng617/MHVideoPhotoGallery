@@ -43,6 +43,8 @@
         self.useCustomBackButtonImageOnImageViewer = YES;
         self.showOverView = YES;
         self.hideShare = NO;
+        self.hideArrows = NO;
+        self.hideTrash = NO;
         self.backButtonState = MHBackButtonStateWithBackArrow;
         self.videoProgressTintColor = UIColor.blackColor;
         

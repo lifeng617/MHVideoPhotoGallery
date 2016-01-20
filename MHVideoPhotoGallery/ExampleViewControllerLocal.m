@@ -125,6 +125,8 @@
             gallery.galleryDelegate = self;
             gallery.dataSource = self;
             gallery.presentationIndex = [galleryData count] - 1;
+            gallery.UICustomization.hideShare = YES;
+            gallery.UICustomization.hideArrows = YES;
             
             __weak MHGalleryController *blockGallery = gallery;
             

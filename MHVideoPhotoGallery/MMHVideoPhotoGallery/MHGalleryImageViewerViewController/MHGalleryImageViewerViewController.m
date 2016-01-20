@@ -228,14 +228,14 @@
                                                             style:UIBarButtonItemStyleBordered
                                                            target:self
                                                            action:@selector(playStopButtonPressed)];
-    self.rightBarButton.type = MHBarButtonItemTypePlayPause;
+    self.playStopBarButton.type = MHBarButtonItemTypePlayPause;
 
     
     self.leftBarButton = [MHBarButtonItem.alloc initWithImage:MHGalleryImage(@"left_arrow")
                                                         style:UIBarButtonItemStyleBordered
                                                        target:self
                                                        action:@selector(leftPressed:)];
-    self.rightBarButton.type = MHBarButtonItemTypeLeft;
+    self.leftBarButton.type = MHBarButtonItemTypeLeft;
 
     
     self.rightBarButton = [MHBarButtonItem.alloc initWithImage:MHGalleryImage(@"right_arrow")
@@ -258,6 +258,22 @@
         self.shareBarButton.type = MHBarButtonItemTypeFlexible;
 
         self.shareBarButton.width = 30;
+    }
+    
+    if (self.UICustomization.hideArrows) {
+        
+        self.leftBarButton = [MHBarButtonItem.alloc initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace
+                                                                         target:self
+                                                                         action:nil];
+        self.leftBarButton.width = 30;
+        self.leftBarButton.type = MHBarButtonItemTypeFlexible;
+        
+        
+        self.rightBarButton = [MHBarButtonItem.alloc initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace
+                                                                          target:self
+                                                                          action:nil];
+        self.rightBarButton.width = 30;
+        self.rightBarButton.type = MHBarButtonItemTypeFlexible;
     }
     
     if (self.UICustomization.hideTrash) {
@@ -1108,7 +1124,7 @@
             }];
             
         }else{
-            [[MHGallerySharedManager sharedManager] startDownloadingThumbnailForItem:self.item successBlock:^(UIImage *image, NSUInteger videoDuration, NSError *error) {
+            [[MHGallerySharedManager sharedManager] startDownloadingImageForItem:self.item type:MHImageTypeFull successBlock:^(UIImage *image, NSUInteger videoDuration, NSError *error) {
                 if (!error) {
                     [weakSelf handleGeneratedThumb:image
                                      videoDuration:videoDuration

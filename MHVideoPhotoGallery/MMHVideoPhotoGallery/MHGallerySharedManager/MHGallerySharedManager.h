@@ -80,6 +80,10 @@ typedef NS_ENUM(NSUInteger, MHYoutubeThumbQuality) {
 
 + (MHGallerySharedManager *)sharedManager;
 
+-(void)startDownloadingImageForItem:(MHGalleryItem *)item
+                               type:(MHImageType)type
+                       successBlock:(void (^)(UIImage *image,NSUInteger videoDuration,NSError *error))succeedBlock;
+
 -(void)startDownloadingThumbnailForItem:(MHGalleryItem *)item
                      successBlock:(void (^)(UIImage *image,NSUInteger videoDuration,NSError *error))succeedBlock;
 

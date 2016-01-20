@@ -421,16 +421,22 @@
     
 }
 
--(void)startDownloadingThumbnailForItem:(MHGalleryItem *)item
-                           successBlock:(void (^)(UIImage *image,NSUInteger videoDuration,NSError *error))succeedBlock
+-(void)startDownloadingImageForItem:(MHGalleryItem *)item
+                               type:(MHImageType)type
+                       successBlock:(void (^)(UIImage *image,NSUInteger videoDuration,NSError *error))succeedBlock
 {
     if (item.asset) {
-        CGFloat w = [UIScreen mainScreen].bounds.size.width / 4;
+        
+        CGFloat w = MIN([UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height) * [UIScreen mainScreen].scale;
         CGSize size = CGSizeMake(w, w);
         PHImageContentMode contentMode = PHImageContentModeAspectFill;
+        if (type == MHImageTypeThumb) {
+            CGFloat w = [UIScreen mainScreen].bounds.size.width / 4;
+            size = CGSizeMake(w, w);
+            contentMode = PHImageContentModeAspectFill;
+        }
         
         PHImageRequestOptions *options = [PHImageRequestOptions new];
-        options.resizeMode = PHImageRequestOptionsResizeModeFast;
         options.deliveryMode = PHImageRequestOptionsDeliveryModeHighQualityFormat;
         [[PHImageManager defaultManager]  requestImageForAsset:item.asset targetSize:size contentMode:contentMode options:options resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {
             succeedBlock(result, item.asset.duration, nil);
@@ -438,6 +444,12 @@
     } else {
         [self startDownloadingThumbImage:item.URLString successBlock:succeedBlock];
     }
+}
+
+-(void)startDownloadingThumbnailForItem:(MHGalleryItem *)item
+                           successBlock:(void (^)(UIImage *image,NSUInteger videoDuration,NSError *error))succeedBlock
+{
+    [self startDownloadingImageForItem:item type:MHImageTypeThumb successBlock:succeedBlock];
 }
 
 -(void)startDownloadingThumbImage:(NSString*)urlString
