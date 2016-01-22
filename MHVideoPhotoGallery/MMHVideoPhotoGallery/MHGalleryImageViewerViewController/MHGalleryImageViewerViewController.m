@@ -1161,6 +1161,8 @@
                 if (!image) {
                     weakSelf.scrollView.maximumZoomScale  =1;
                     [weakSelf changeToErrorImage];
+                } else {
+                    [weakSelf centerImageView];
                 }
                 [weakSelf.act stopAnimating];
             }];
