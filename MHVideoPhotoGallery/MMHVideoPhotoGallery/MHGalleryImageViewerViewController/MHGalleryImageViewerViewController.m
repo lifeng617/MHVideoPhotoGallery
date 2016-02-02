@@ -563,7 +563,7 @@
             MHImageViewController *imageViewController =[MHImageViewController imageViewControllerForMHMediaItem:item viewController:sself];
             imageViewController.pageIndex  = nextIndex;
             
-            [self.pageViewController setViewControllers:@[imageViewController] direction:direction animated:YES completion:^(BOOL finished) {
+            [sself.pageViewController setViewControllers:@[imageViewController] direction:direction animated:YES completion:^(BOOL finished) {
                 
                 dispatch_async(dispatch_get_main_queue(), ^{
                     
@@ -1215,7 +1215,7 @@
                 if (!error) {
                     [weakSelf handleGeneratedThumb:image
                                      videoDuration:videoDuration
-                                         urlString:self.item.URLString];
+                                         urlString:weakSelf.item.URLString];
                 }else{
                     [weakSelf changeToErrorImage];
                 }
