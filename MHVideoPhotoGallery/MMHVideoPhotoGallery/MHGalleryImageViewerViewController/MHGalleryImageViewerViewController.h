@@ -45,6 +45,18 @@
 -(void)reloadData;
 @end
 
+@interface MHMoviePlayerView : UIView {
+    
+}
+
+@property (nonatomic, strong) AVPlayer* player;
+
+- (void)setPlayer:(AVPlayer*)player;
+- (void)setVideoFillMode:(NSString *)fillMode;
+- (CGSize)naturalSize;
+- (BOOL)isPlaying;
+@end
+
 @interface MHImageViewController : UIViewController<UIScrollViewDelegate,UIGestureRecognizerDelegate>
 
 @property (nonatomic,strong)        MHTransitionDismissMHGallery *interactiveTransition;
@@ -55,7 +67,8 @@
 @property (nonatomic,strong)        UIButton *playButton;
 @property (nonatomic,strong)        UIActivityIndicatorView *act;
 @property (nonatomic,strong)        UIImageView *imageView;
-@property (nonatomic,strong)        MPMoviePlayerController *moviePlayer;
+@property (nonatomic,strong)        AVPlayer *moviePlayer;
+@property (nonatomic,strong)        MHMoviePlayerView *moviePlayerView;
 
 @property (nonatomic)               NSInteger pageIndex;
 @property (nonatomic)               NSInteger currentTimeMovie;

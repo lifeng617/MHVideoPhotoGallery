@@ -185,12 +185,12 @@
     
     
     if (imageViewerCurrent.isPlayingVideo && imageViewerCurrent.moviePlayer) {
-        self.moviePlayer = imageViewerCurrent.moviePlayer;
-        [self.moviePlayer.view setFrame:AVMakeRectWithAspectRatioInsideRect(imageViewerCurrent.moviePlayer.naturalSize,fromViewController.view.bounds)];
+        self.moviePlayerView = imageViewerCurrent.moviePlayerView;
+        [self.moviePlayerView setFrame:AVMakeRectWithAspectRatioInsideRect(imageViewerCurrent.moviePlayerView.naturalSize,fromViewController.view.bounds)];
         
-        self.startFrame = self.moviePlayer.view.frame;
+        self.startFrame = self.moviePlayerView.frame;
         
-        [self.containerView addSubview:self.moviePlayer.view];
+        [self.containerView addSubview:self.moviePlayerView];
         self.transitionImageView.hidden = YES;
     }else{
         [self.containerView addSubview:self.cellImageSnapshot];
@@ -198,12 +198,12 @@
     }
     self.navFrame = fromViewController.navigationBar.frame;
     if (self.toTransform != self.orientationTransformBeforeDismiss && !self.wrongTransform) {
-        if (self.moviePlayer) {
-            [self.moviePlayer.view setFrame:AVMakeRectWithAspectRatioInsideRect(imageViewerCurrent.moviePlayer.naturalSize,CGRectMake(0, 0, fromViewController.view.bounds.size.width, fromViewController.view.bounds.size.height))];
-            self.moviePlayer.view.transform = CGAffineTransformMakeRotation(self.orientationTransformBeforeDismiss);
-            self.moviePlayer.view.center = UIApplication.sharedApplication.keyWindow.center;
-            self.startFrame = self.moviePlayer.view.bounds;
-            self.startCenter = self.moviePlayer.view.center;
+        if (self.moviePlayerView) {
+            [self.moviePlayerView setFrame:AVMakeRectWithAspectRatioInsideRect(imageViewerCurrent.moviePlayerView.naturalSize,CGRectMake(0, 0, fromViewController.view.bounds.size.width, fromViewController.view.bounds.size.height))];
+            self.moviePlayerView.transform = CGAffineTransformMakeRotation(self.orientationTransformBeforeDismiss);
+            self.moviePlayerView.center = UIApplication.sharedApplication.keyWindow.center;
+            self.startFrame = self.moviePlayerView.bounds;
+            self.startCenter = self.moviePlayerView.center;
         }else{
             [self.cellImageSnapshot setFrame:AVMakeRectWithAspectRatioInsideRect(image.size,CGRectMake(0, 0, fromViewController.view.bounds.size.width, fromViewController.view.bounds.size.height))];
             self.cellImageSnapshot.transform = CGAffineTransformMakeRotation(self.orientationTransformBeforeDismiss);
@@ -218,15 +218,15 @@
 -(void)updateInteractiveTransition:(CGFloat)percentComplete{
     [super updateInteractiveTransition:percentComplete];
     self.backView.alpha = 1.1-percentComplete;
-    if (self.moviePlayer.playbackState != MPMoviePlaybackStateStopped && self.moviePlayer.playbackState != MPMoviePlaybackStatePaused) {
+    if (self.moviePlayerView && [self.moviePlayerView isPlaying]) {
         if (self.toTransform != self.orientationTransformBeforeDismiss) {
             if (self.orientationTransformBeforeDismiss <0) {
-                self.moviePlayer.view.center = CGPointMake(self.moviePlayer.view.center.x-self.changedPoint.y, self.moviePlayer.view.center.y+self.changedPoint.x);
+                self.moviePlayerView.center = CGPointMake(self.moviePlayerView.center.x-self.changedPoint.y, self.moviePlayerView.center.y+self.changedPoint.x);
             }else{
-                self.moviePlayer.view.center = CGPointMake(self.moviePlayer.view.center.x+self.changedPoint.y, self.moviePlayer.view.center.y-self.changedPoint.x);
+                self.moviePlayerView.center = CGPointMake(self.moviePlayerView.center.x+self.changedPoint.y, self.moviePlayerView.center.y-self.changedPoint.x);
             }
         }else{
-            self.moviePlayer.view.frame = CGRectMake(self.moviePlayer.view.frame.origin.x-self.changedPoint.x, self.moviePlayer.view.frame.origin.y-self.changedPoint.y, self.moviePlayer.view.frame.size.width, self.moviePlayer.view.frame.size.height);
+            self.moviePlayerView.frame = CGRectMake(self.moviePlayerView.frame.origin.x-self.changedPoint.x, self.moviePlayerView.frame.origin.y-self.changedPoint.y, self.moviePlayerView.frame.size.width, self.moviePlayerView.frame.size.height);
         }
     }else{
         if (self.toTransform != self.orientationTransformBeforeDismiss && !self.wrongTransform) {
@@ -247,8 +247,8 @@
     CGFloat delayTime  = 0.0;
     if (self.toTransform != self.orientationTransformBeforeDismiss && self.transitionImageView  && !self.wrongTransform) {
         [UIView animateWithDuration:0.2 animations:^{
-            if (self.moviePlayer) {
-                self.moviePlayer.view.transform = CGAffineTransformMakeRotation(self.toTransform);
+            if (self.moviePlayerView) {
+                self.moviePlayerView.transform = CGAffineTransformMakeRotation(self.toTransform);
             }else{
                 self.cellImageSnapshot.transform = CGAffineTransformMakeRotation(self.toTransform);
             }
@@ -278,8 +278,8 @@
             self.cellImageSnapshot.clipsToBounds = self.transitionImageView.clipsToBounds;
             self.cellImageSnapshot.layer.cornerRadius = self.transitionImageView.layer.cornerRadius;
             
-            if (self.moviePlayer) {
-                self.moviePlayer.view.frame = [self.containerView convertRect:self.transitionImageView.frame fromView:self.transitionImageView.superview];
+            if (self.moviePlayerView) {
+                self.moviePlayerView.frame = [self.containerView convertRect:self.transitionImageView.frame fromView:self.transitionImageView.superview];
             }else{
                 if (!self.transitionImageView) {
                     CGPoint newPoint = self.startCenter;
@@ -318,11 +318,11 @@
     [super cancelInteractiveTransition];
     
     [UIView animateWithDuration:0.3 animations:^{
-        if (self.moviePlayer) {
+        if (self.moviePlayerView) {
             if (self.toTransform != self.orientationTransformBeforeDismiss) {
-                self.moviePlayer.view.center = CGPointMake(self.moviePlayer.view.bounds.size.height/2, self.moviePlayer.view.center.y);
+                self.moviePlayerView.center = CGPointMake(self.moviePlayerView.bounds.size.height/2, self.moviePlayerView.center.y);
             }else{
-                self.moviePlayer.view.frame = self.startFrame;
+                self.moviePlayerView.frame = self.startFrame;
             }
         }else{
             if (self.toTransform != self.orientationTransformBeforeDismiss) {
@@ -339,12 +339,12 @@
         [self.backView removeFromSuperview];
         
         UINavigationController *fromViewController = (UINavigationController*)[self.context viewControllerForKey:UITransitionContextFromViewControllerKey];
-        if (self.moviePlayer) {
+        if (self.moviePlayerView) {
             if (self.toTransform != self.orientationTransformBeforeDismiss) {
-                self.moviePlayer.view.transform = CGAffineTransformMakeRotation(self.toTransform);
-                self.moviePlayer.view.center = CGPointMake(self.moviePlayer.view.bounds.size.width/2, self.moviePlayer.view.bounds.size.height/2);
+                self.moviePlayerView.transform = CGAffineTransformMakeRotation(self.toTransform);
+                self.moviePlayerView.center = CGPointMake(self.moviePlayerView.bounds.size.width/2, self.moviePlayerView.bounds.size.height/2);
             }else{
-                self.moviePlayer.view.bounds = fromViewController.view.bounds;
+                self.moviePlayerView.bounds = fromViewController.view.bounds;
             }
         }
         
@@ -353,18 +353,18 @@
         MHGalleryImageViewerViewController *imageViewer  = (MHGalleryImageViewerViewController*)fromViewController.visibleViewController;
         imageViewer.pageViewController.view.hidden = NO;
         
-        if (self.moviePlayer) {
+        if (self.moviePlayerView) {
             MHImageViewController *imageViewController = (MHImageViewController*)imageViewer.pageViewController.viewControllers.firstObject;
-            [imageViewController.view insertSubview:self.moviePlayer.view atIndex:2];
+            [imageViewController.view insertSubview:self.moviePlayerView atIndex:2];
         }
         
         if ([self.context respondsToSelector:@selector(viewForKey:)]) { // is on iOS 8?
             [UIApplication.sharedApplication.keyWindow addSubview:fromViewController.view];
-            self.moviePlayer = nil;
+            self.moviePlayerView = nil;
         }
         
         [self.context completeTransition:NO];
-        if (self.moviePlayer) {
+        if (self.moviePlayerView) {
             [UIView performWithoutAnimation:^{
                 [self doOrientationwithFromViewController:fromViewController];
             }];

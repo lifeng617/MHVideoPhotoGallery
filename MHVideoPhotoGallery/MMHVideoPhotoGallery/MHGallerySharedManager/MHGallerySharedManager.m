@@ -202,6 +202,29 @@
     return nil;
 }
 
+-(void)getAVAssetForMediaPlayerOfItem:(MHGalleryItem *)item
+                         successBlock:(void (^)(AVAsset *asset,NSError *error))succeedBlock
+{
+    if (item.asset) {
+        PHVideoRequestOptions *options = [PHVideoRequestOptions new];
+        options.deliveryMode = PHVideoRequestOptionsDeliveryModeMediumQualityFormat;
+        
+        [[PHImageManager defaultManager] requestAVAssetForVideo:item.asset options:options resultHandler:^(AVAsset * _Nullable asset, AVAudioMix * _Nullable audioMix, NSDictionary * _Nullable info) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                succeedBlock(asset, nil);
+            });
+        }];
+    } else {
+        [self getURLForMediaPlayer:item.URLString successBlock:^(NSURL *URL, NSError *error) {
+            if (URL) {
+                succeedBlock([[AVURLAsset alloc] initWithURL:URL options:nil], nil);
+            } else {
+                succeedBlock(nil, error);
+            }
+        }];
+    }
+}
+
 -(void)getURLForMediaPlayerOfItem:(MHGalleryItem *)item
                      successBlock:(void (^)(NSURL *URL,NSError *error))succeedBlock
 {

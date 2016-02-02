@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <AVFoundation/AVFoundation.h>
 #import "MHGallery.h"
 
 
@@ -100,6 +101,8 @@ typedef NS_ENUM(NSUInteger, MHYoutubeThumbQuality) {
 
 -(BOOL)isUIViewControllerBasedStatusBarAppearance;
 
+-(void)getAVAssetForMediaPlayerOfItem:(MHGalleryItem *)item
+                         successBlock:(void (^)(AVAsset *asset,NSError *error))succeedBlock;
 
 -(void)getURLForMediaPlayerOfItem:(MHGalleryItem *)item
                successBlock:(void (^)(NSURL *URL,NSError *error))succeedBlock;

@@ -10,9 +10,10 @@
 #import "MHGallery.h"
 #import "MHUIImageViewContentViewAnimation.h"
 
+@class MHMoviePlayerView;
 @interface MHTransitionDismissMHGallery : UIPercentDrivenInteractiveTransition<UIViewControllerAnimatedTransitioning>
 
-@property (nonatomic,strong)    MPMoviePlayerController *moviePlayer;
+@property (nonatomic,strong)    MHMoviePlayerView *moviePlayerView;
 @property (nonatomic,strong)    UIImageView *transitionImageView;
 @property (nonatomic,assign)    CGPoint changedPoint;
 @property (nonatomic,assign)    CGFloat orientationTransformBeforeDismiss;
