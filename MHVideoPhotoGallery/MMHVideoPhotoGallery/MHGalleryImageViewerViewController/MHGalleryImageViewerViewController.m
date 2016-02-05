@@ -1280,10 +1280,13 @@
               videoDuration:(NSInteger)videoDuration
                   urlString:(NSString*)urlString{
     
-    self.wholeTimeMovie = videoDuration;
-    self.rightSliderLabel.text = [MHGallerySharedManager stringForMinutesAndSeconds:videoDuration addMinus:YES];
+    if (self.moviePlayerView == nil) {
+        self.wholeTimeMovie = videoDuration;
+        self.rightSliderLabel.text = [MHGallerySharedManager stringForMinutesAndSeconds:videoDuration addMinus:YES];
+        self.slider.maximumValue = videoDuration;
+    }
     
-    self.slider.maximumValue = videoDuration;
+    
     [self.view viewWithTag:508].hidden =NO;
     self.imageView.image = image;
     
@@ -1572,7 +1575,7 @@
     
     self.videoWasPlayable = NO;
     
-    if ([asset isKindOfClass:[AVComposition class]]) {
+    if (asset) {
         CGFloat duration = (CGFloat)CMTimeGetSeconds(asset.duration);
         if (duration > 0) {
             self.wholeTimeMovie = duration;
