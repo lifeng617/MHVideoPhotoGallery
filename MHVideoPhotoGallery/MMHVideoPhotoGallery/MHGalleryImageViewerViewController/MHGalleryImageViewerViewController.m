@@ -1136,12 +1136,27 @@
         
         [self.view addGestureRecognizer:imageTap];
         
-        self.act = [UIActivityIndicatorView.alloc initWithFrame:self.view.bounds];
-        [self.act startAnimating];
-        self.act.hidesWhenStopped =YES;
-        self.act.tag =507;
-        self.act.autoresizingMask =UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth;
-        [self.scrollView addSubview:self.act];
+        UIView *activityView = [[UIView alloc] initWithFrame:CGRectMake(self.view.bounds.size.width * 0.5 - 100, self.view.bounds.size.height * 0.5 - 25, 200, 50)];
+        activityView.backgroundColor = [UIColor clearColor];
+        activityView.userInteractionEnabled = NO;
+        activityView.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin;
+        [self.view addSubview:activityView];
+        self.activityView = activityView;
+        
+        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 30, 200, 20)];
+        label.font = [UIFont systemFontOfSize:15];
+        label.textAlignment = NSTextAlignmentCenter;
+        label.text = @"Loading...";
+        [activityView addSubview:label];
+        self.activityLabel = label;
+        
+        UIActivityIndicatorView *activityIndicator = [UIActivityIndicatorView.alloc initWithFrame:CGRectMake(85, 0, 30, 30)];
+        [activityIndicator startAnimating];
+        activityIndicator.hidesWhenStopped =YES;
+        activityIndicator.tag =507;
+        activityIndicator.autoresizingMask =UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth;
+        [activityView addSubview:activityIndicator];
+        self.act = activityIndicator;
         if (self.item.galleryType != MHGalleryTypeImage) {
             [self addPlayButtonToView];
             
@@ -1207,6 +1222,7 @@
                 } else {
                     [weakSelf centerImageView];
                 }
+                weakSelf.activityView.alpha = 0;
                 [weakSelf.act stopAnimating];
             }];
             
@@ -1219,6 +1235,7 @@
                 }else{
                     [weakSelf changeToErrorImage];
                 }
+                weakSelf.activityView.alpha = 0;
                 [weakSelf.act stopAnimating];
             }];
         }
@@ -1234,6 +1251,8 @@
     }else{
         self.imageView.image = image;
     }
+    
+    self.activityView.alpha = 0;
     [self.act stopAnimating];
 }
 
@@ -1292,6 +1311,7 @@
     
     self.playButton.frame = CGRectMake(self.viewController.view.frame.size.width/2-36, self.viewController.view.frame.size.height/2-36, 72, 72);
     self.playButton.hidden = NO;
+    self.activityView.alpha = 0;
     [self.act stopAnimating];
 }
 -(BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldBeRequiredToFailByGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer{
@@ -1668,6 +1688,7 @@
     
     if (self.viewController.isHiddingToolBarAndNavigationBar) {
         self.act.color = [UIColor whiteColor];
+        self.activityLabel.textColor = [UIColor whiteColor];
         self.moviePlayerToolBarTop.alpha =0;
     }else{
         if (self.moviePlayerToolBarTop) {
@@ -1677,6 +1698,7 @@
                 }
             }
         }
+        self.activityLabel.textColor = [UIColor blackColor];
         self.act.color = [UIColor blackColor];
     }
     if (self.item.galleryType == MHGalleryTypeVideo) {
@@ -1726,6 +1748,14 @@
     self.viewController.topSuperView.alpha = alpha;
     self.viewController.descriptionLabel.alpha = alpha;
     self.viewController.bottomSuperView.alpha = alpha;
+    
+    if (!self.viewController.isHiddingToolBarAndNavigationBar) {
+        self.act.color = [UIColor whiteColor];
+        self.activityLabel.textColor = [UIColor whiteColor];
+    }else{
+        self.activityLabel.textColor = [UIColor blackColor];
+        self.act.color = [UIColor blackColor];
+    }
 
     if (!MHShouldShowStatusBar()) {
         alpha = 0;

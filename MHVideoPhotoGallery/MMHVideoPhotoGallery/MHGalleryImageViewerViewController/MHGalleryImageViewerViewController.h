@@ -61,11 +61,13 @@
 
 @property (nonatomic,strong)        MHTransitionDismissMHGallery *interactiveTransition;
 @property (nonatomic,strong)        MHTransitionShowOverView *interactiveOverView;
-@property (nonatomic,weak)        MHGalleryImageViewerViewController *viewController;
+@property (nonatomic,weak)          MHGalleryImageViewerViewController *viewController;
 @property (nonatomic,strong)        MHGalleryItem *item;
 @property (nonatomic,strong)        UIScrollView *scrollView;
 @property (nonatomic,strong)        UIButton *playButton;
-@property (nonatomic,strong)        UIActivityIndicatorView *act;
+@property (nonatomic,strong)        UIView *activityView;
+@property (nonatomic,weak)          UILabel *activityLabel;
+@property (nonatomic,weak)          UIActivityIndicatorView *act;
 @property (nonatomic,strong)        UIImageView *imageView;
 @property (nonatomic,strong)        AVPlayer *moviePlayer;
 @property (nonatomic,strong)        MHMoviePlayerView *moviePlayerView;

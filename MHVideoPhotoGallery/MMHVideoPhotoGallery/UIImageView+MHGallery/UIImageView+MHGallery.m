@@ -52,8 +52,43 @@
         PHImageRequestOptions *options = [PHImageRequestOptions new];
         options.resizeMode = PHImageRequestOptionsResizeModeFast;
         options.deliveryMode = PHImageRequestOptionsDeliveryModeHighQualityFormat;
+        options.networkAccessAllowed = true;
         [[PHImageManager defaultManager]  requestImageForAsset:item.asset targetSize:size contentMode:contentMode options:options resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {
-            [weakSelf setImageForImageView:result successBlock:succeedBlock];
+            __strong UIImageView *sself = weakSelf;
+            
+            if (!sself)
+                return;
+            
+            if (result)
+            {
+                [sself setImageForImageView:result successBlock:succeedBlock];
+            }
+            else
+            {
+                NSURL *fileURL = info[@"PHImageFileURLKey"];
+                
+                if (fileURL && [fileURL.path rangeOfString:@"CloudSharing"].location != NSNotFound)
+                {
+                    
+                    PHImageRequestOptions *options = [PHImageRequestOptions new];
+                    options.resizeMode = PHImageRequestOptionsResizeModeFast;
+                    options.deliveryMode = PHImageRequestOptionsDeliveryModeHighQualityFormat;
+                    options.networkAccessAllowed = true;
+                    [[PHImageManager defaultManager] requestImageForAsset:item.asset targetSize:CGSizeMake([UIScreen mainScreen].bounds.size.width * 0.5, [UIScreen mainScreen].bounds.size.height * 0.5) contentMode:PHImageContentModeDefault options:options resultHandler:^(UIImage *result, NSDictionary *info) {
+                        
+                        __strong UIImageView *sself = weakSelf;
+                        
+                        if (!sself)
+                            return;
+                        
+                        [sself setImageForImageView:result successBlock:succeedBlock];
+                        
+                    }];
+                    
+                } else {
+                    [sself setImageForImageView:result successBlock:succeedBlock];
+                }
+            }
         }];
         
     } else if ([item.URLString rangeOfString:MHAssetLibrary].location != NSNotFound && item.URLString) {
