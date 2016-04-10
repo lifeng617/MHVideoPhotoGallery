@@ -17,6 +17,7 @@
 
 @interface MHOverviewController ()
 
+@property (nonatomic, strong) UILabel                *galleryTitleLabel;
 @property (nonatomic, strong) UILabel                *navTitleLabel;
 @property (nonatomic, strong) MHTransitionShowDetail *interactivePushTransition;
 @property (nonatomic        ) CGPoint                lastPoint;
@@ -31,15 +32,16 @@
     
     self.automaticallyAdjustsScrollViewInsets = NO;
     
-    if (self.galleryViewController.galleryTitle) {
+    if ([self.galleryViewController.dataSource respondsToSelector:@selector(titleOfGalleryController:)]) {
         
         UIView *titleView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 200, 30)];
         
         UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 200, 16)];
-        label.text = self.galleryViewController.galleryTitle;
+        label.text = [self galleryTitle];
         label.textAlignment = NSTextAlignmentCenter;
         label.font = [UIFont boldSystemFontOfSize:16];
         [titleView addSubview:label];
+        self.galleryTitleLabel = label;
         
         UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 18, 200, 14)];
         titleLabel.font = [UIFont systemFontOfSize:12];
@@ -52,9 +54,9 @@
         self.title =  MHGalleryLocalizedString(@"overview.title.current");
     }
     
-    UIBarButtonItem *doneBarButton = [UIBarButtonItem.alloc initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(donePressed)];
-    
-    self.navigationItem.rightBarButtonItem = doneBarButton;
+//    UIBarButtonItem *doneBarButton = [UIBarButtonItem.alloc initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(donePressed)];
+//    
+//    self.navigationItem.rightBarButtonItem = doneBarButton;
     
     self.collectionView = [UICollectionView.alloc initWithFrame:self.view.bounds
                                            collectionViewLayout:[self layoutForOrientation:UIApplication.sharedApplication.statusBarOrientation]];
@@ -93,6 +95,37 @@
     
     
     
+    [self reloadData];
+    
+}
+
+-(UIStatusBarStyle)preferredStatusBarStyle{
+    return self.galleryViewController.preferredStatusBarStyleMH;
+}
+
+-(UICollectionViewFlowLayout*)layoutForOrientation:(UIInterfaceOrientation)orientation{
+    if (orientation == UIInterfaceOrientationPortrait ) {
+        return self.galleryViewController.UICustomization.overViewCollectionViewLayoutPortrait;
+    }
+    return self.galleryViewController.UICustomization.overViewCollectionViewLayoutLandscape;
+}
+
+-(MHGalleryController*)galleryViewController{
+    if ([self.navigationController isKindOfClass:MHGalleryController.class]) {
+        return (MHGalleryController*)self.navigationController;
+    }
+    return nil;
+}
+
+-(MHGalleryItem*)itemForIndex:(NSInteger)index{
+    return [self.galleryViewController.dataSource itemForIndex:index];
+}
+
+-(NSString *)galleryTitle {
+    return [self.galleryViewController.dataSource titleOfGalleryController:self.galleryViewController];
+}
+
+-(void)updateTitle {
     if (self.navTitleLabel && [self.galleryViewController.dataSource respondsToSelector:@selector(numberOfItemsInGallery:forType:)]) {
         NSInteger photos = [self.galleryViewController.dataSource numberOfItemsInGallery:self.galleryViewController forType:MHGalleryTypeImage];
         NSInteger videos = [self.galleryViewController.dataSource numberOfItemsInGallery:self.galleryViewController forType:MHGalleryTypeVideo];
@@ -117,35 +150,18 @@
         } else if ([title hasSuffix:@", "]) {
             title = [title substringToIndex:[title length] - 2];
         }
-            
+        
         
         self.navTitleLabel.text = title;
     }
-    
+    if (self.galleryTitleLabel) {
+        self.galleryTitleLabel.text = [self galleryTitle];
+    }
+}
+
+-(void)reloadData {
+    [self updateTitle];
     [self.collectionView reloadData];
-    
-}
-
--(UIStatusBarStyle)preferredStatusBarStyle{
-    return self.galleryViewController.preferredStatusBarStyleMH;
-}
-
--(UICollectionViewFlowLayout*)layoutForOrientation:(UIInterfaceOrientation)orientation{
-    if (orientation == UIInterfaceOrientationPortrait ) {
-        return self.galleryViewController.UICustomization.overViewCollectionViewLayoutPortrait;
-    }
-    return self.galleryViewController.UICustomization.overViewCollectionViewLayoutLandscape;
-}
-
--(MHGalleryController*)galleryViewController{
-    if ([self.navigationController isKindOfClass:MHGalleryController.class]) {
-        return (MHGalleryController*)self.navigationController;
-    }
-    return nil;
-}
-
--(MHGalleryItem*)itemForIndex:(NSInteger)index{
-    return [self.galleryViewController.dataSource itemForIndex:index];
 }
 
 -(void)donePressed{
@@ -298,6 +314,7 @@
     detail.pageIndex = indexPath.row;
     if ([self.navigationController isKindOfClass:MHGalleryController.class]) {
         [self.navigationController pushViewController:detail animated:YES];
+        self.galleryViewController.imageViewerViewController = detail;
     }
 }
 -(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{

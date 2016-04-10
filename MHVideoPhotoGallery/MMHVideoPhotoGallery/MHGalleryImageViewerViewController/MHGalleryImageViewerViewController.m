@@ -84,6 +84,7 @@
 @end
 
 @interface MHGalleryImageViewerViewController()<MHGalleryLabelDelegate,TTTAttributedLabelDelegate>
+@property (nonatomic, strong) UILabel                  *galleryTitleLabel;
 @property (nonatomic, strong) UILabel                  *navTitleLabel;
 @property (nonatomic, strong) MHGradientView           *bottomSuperView;
 @property (nonatomic, strong) MHGradientView           *topSuperView;
@@ -174,15 +175,16 @@
     self.UICustomization          = self.galleryViewController.UICustomization;
     self.transitionCustomization  = self.galleryViewController.transitionCustomization;
     
-    if (self.galleryViewController.galleryTitle) {
+    if ([self.galleryViewController.dataSource respondsToSelector:@selector(titleOfGalleryController:)]) {
         
         UIView *titleView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 200, 30)];
         
         UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 200, 16)];
-        label.text = self.galleryViewController.galleryTitle;
+        label.text = [self galleryTitle];
         label.textAlignment = NSTextAlignmentCenter;
         label.font = [UIFont boldSystemFontOfSize:16];
         [titleView addSubview:label];
+        self.galleryTitleLabel = label;
         
         UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 18, 200, 14)];
         titleLabel.font = [UIFont systemFontOfSize:12];
@@ -206,11 +208,11 @@
         }
     }
     
-    UIBarButtonItem *doneBarButton =  [UIBarButtonItem.alloc initWithBarButtonSystemItem:UIBarButtonSystemItemDone
-                                                                                  target:self
-                                                                                  action:@selector(donePressed)];
-    
-    self.navigationItem.rightBarButtonItem = doneBarButton;
+//    UIBarButtonItem *doneBarButton =  [UIBarButtonItem.alloc initWithBarButtonSystemItem:UIBarButtonSystemItemDone
+//                                                                                  target:self
+//                                                                                  action:@selector(donePressed)];
+//    
+//    self.navigationItem.rightBarButtonItem = doneBarButton;
     
     self.view.backgroundColor = [self.UICustomization MHGalleryBackgroundColorForViewMode:MHGalleryViewModeImageViewerNavigationBarShown];
     
@@ -345,6 +347,7 @@
                                                                           action:nil];
         self.trashBarButton.type = MHBarButtonItemTypeFlexible;
         self.trashBarButton.width = 30;
+        
     } else {
         self.trashBarButton = [MHBarButtonItem.alloc initWithBarButtonSystemItem:UIBarButtonSystemItemTrash
                                                                           target:self
@@ -438,6 +441,10 @@
 
 -(UIInterfaceOrientation)currentOrientation{
     return UIApplication.sharedApplication.statusBarOrientation;
+}
+
+-(NSString *)galleryTitle {
+    return [self.galleryViewController.dataSource titleOfGalleryController:self.galleryViewController];
 }
 
 -(NSArray *)galleryItems {
@@ -678,6 +685,10 @@
     } else {
         self.navigationItem.title = [NSString stringWithFormat:localizedString,@(pageIndex+1),@(self.numberOfGalleryItems)];
     }
+    
+    if (self.galleryTitleLabel) {
+        self.galleryTitleLabel.text = [self galleryTitle];
+    }
 }
 
 
@@ -715,6 +726,9 @@
 }
 
 -(void)updateToolBarForItem:(MHGalleryItem*)item{
+    
+    if (![self isViewLoaded])
+        return;
     
     MHBarButtonItem *flex = [MHBarButtonItem.alloc initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace
                                                                         target:self
@@ -1678,6 +1692,13 @@
         return MHGalleryViewModeImageViewerNavigationBarHidden;
     }
     return MHGalleryViewModeImageViewerNavigationBarShown;
+}
+
+-(void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    
+    if (self.moviePlayer)
+        [self stopMovie];
 }
 
 -(void)viewWillAppear:(BOOL)animated{

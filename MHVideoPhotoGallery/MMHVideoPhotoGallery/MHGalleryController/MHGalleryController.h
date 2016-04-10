@@ -42,6 +42,7 @@
  */
 - (NSInteger)numberOfItemsInGallery:(MHGalleryController*)galleryController;
 - (NSArray *)itemArray;
+- (NSString *)titleOfGalleryController:(MHGalleryController *)galleryController;
 @optional
 - (NSInteger)numberOfItemsInGallery:(MHGalleryController*)galleryController forType:(MHGalleryType)type;
 @end
@@ -56,7 +57,6 @@
 @property (nonatomic,strong) MHGalleryImageViewerViewController *imageViewerViewController;
 @property (nonatomic,strong) MHOverviewController               *overViewViewController;
 @property (nonatomic,strong) NSArray<MHGalleryItem *>           *galleryItems; //You can set an Array of GalleryItems or you can use the dataSource.
-@property (nonatomic,strong) NSString                           *galleryTitle;
 @property (nonatomic,strong) MHTransitionCustomization          *transitionCustomization; //Use transitionCustomization to Customize the GalleryControllers transitions
 @property (nonatomic,strong) MHUICustomization                  *UICustomization; //Use UICustomization to Customize the GalleryControllers UI
 @property (nonatomic,strong) MHTransitionPresentMHGallery       *interactivePresentationTransition;
