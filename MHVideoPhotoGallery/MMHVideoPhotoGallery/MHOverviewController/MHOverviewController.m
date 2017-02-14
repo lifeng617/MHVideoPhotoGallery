@@ -50,15 +50,21 @@
         
         self.navTitleLabel = titleLabel;
         self.navigationItem.titleView = titleView;
+    } else if ([self.galleryViewController.dataSource respondsToSelector:@selector(staticTitleOfGalleryController:)]) {
+        self.title = [self.galleryViewController.dataSource staticTitleOfGalleryController:self.galleryViewController];
     } else {
         self.title =  MHGalleryLocalizedString(@"overview.title.current");
     }
     
-//    UIBarButtonItem *doneBarButton = [UIBarButtonItem.alloc initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(donePressed)];
-//    
-//    self.navigationItem.rightBarButtonItem = doneBarButton;
+    self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:nil];
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"back"] style:UIBarButtonItemStylePlain target:self action:@selector(donePressed)];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemPlay target:self action:@selector(playPressed)];
     
-    self.collectionView = [UICollectionView.alloc initWithFrame:self.view.bounds
+    CGRect frame = self.view.bounds;
+    CGSize size = frame.size;
+    size.height -= 44;
+    
+    self.collectionView = [UICollectionView.alloc initWithFrame:frame
                                            collectionViewLayout:[self layoutForOrientation:UIApplication.sharedApplication.statusBarOrientation]];
     
     self.collectionView.backgroundColor = [self.galleryViewController.UICustomization MHGalleryBackgroundColorForViewMode:MHGalleryViewModeOverView];
@@ -73,6 +79,20 @@
     self.collectionView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleTopMargin;
     [self.view addSubview:self.collectionView];
     [self.collectionView reloadData];
+    
+    frame = self.view.bounds;
+    frame.origin = CGPointMake(0, frame.size.height - 44);
+    frame.size = CGSizeMake(frame.size.width, 44);
+    
+    
+    UIBarButtonItem *flexItem1 = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+    UIBarButtonItem *flexItem2 = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+    UIBarButtonItem *cameraItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCamera target:self action:@selector(cameraPressed)];
+    
+    self.toolBar = [[UIToolbar alloc] initWithFrame:frame];
+    self.toolBar.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin;
+    self.toolBar.items = @[flexItem1, cameraItem, flexItem2];
+    [self.view addSubview:self.toolBar];
     
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
@@ -162,6 +182,18 @@
 -(void)reloadData {
     [self updateTitle];
     [self.collectionView reloadData];
+}
+
+-(void)cameraPressed {
+    if ([self.galleryViewController.galleryDelegate respondsToSelector:@selector(galleryControllerCameraTapped:)]) {
+        [self.galleryViewController.galleryDelegate galleryControllerCameraTapped:self.galleryViewController];
+    }
+}
+
+-(void)playPressed {
+    if ([self.galleryViewController.galleryDelegate respondsToSelector:@selector(galleryControllerPlayTapped:fromIndex:)]) {
+        [self.galleryViewController.galleryDelegate galleryControllerPlayTapped:self.galleryViewController fromIndex:0];
+    }
 }
 
 -(void)donePressed{

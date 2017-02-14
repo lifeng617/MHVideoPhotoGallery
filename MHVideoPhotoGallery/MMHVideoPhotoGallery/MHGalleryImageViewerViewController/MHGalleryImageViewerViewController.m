@@ -143,6 +143,12 @@
     }
 }
 
+-(void)playPressed {
+    if ([self.galleryViewController.galleryDelegate respondsToSelector:@selector(galleryControllerPlayTapped:fromIndex:)]) {
+        [self.galleryViewController.galleryDelegate galleryControllerPlayTapped:self.galleryViewController fromIndex:self.pageIndex];
+    }
+}
+
 -(MHGalleryViewMode)viewModeForBarStyle{
     if (self.isHiddingToolBarAndNavigationBar) {
         return MHGalleryViewModeImageViewerNavigationBarHidden;
@@ -175,7 +181,8 @@
     self.UICustomization          = self.galleryViewController.UICustomization;
     self.transitionCustomization  = self.galleryViewController.transitionCustomization;
     
-    if ([self.galleryViewController.dataSource respondsToSelector:@selector(titleOfGalleryController:)]) {
+    if ([self.galleryViewController.dataSource respondsToSelector:@selector(titleOfGalleryController:)] ||
+        [self.galleryViewController.dataSource respondsToSelector:@selector(titleOfItem:)]) {
         
         UIView *titleView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 200, 30)];
         
@@ -207,6 +214,8 @@
             self.navigationItem.leftBarButtonItem = backBarButton;
         }
     }
+    
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemPlay target:self action:@selector(playPressed)];
     
 //    UIBarButtonItem *doneBarButton =  [UIBarButtonItem.alloc initWithBarButtonSystemItem:UIBarButtonSystemItemDone
 //                                                                                  target:self
@@ -444,7 +453,15 @@
 }
 
 -(NSString *)galleryTitle {
-    return [self.galleryViewController.dataSource titleOfGalleryController:self.galleryViewController];
+    if ([self.galleryViewController.dataSource respondsToSelector:@selector(titleOfGalleryController:)])
+        return [self.galleryViewController.dataSource titleOfGalleryController:self.galleryViewController];
+    else if ([self.galleryViewController.dataSource respondsToSelector:@selector(titleOfItem:)]) {
+        MHImageViewController *imageViewController = (MHImageViewController*)self.pageViewController.viewControllers.firstObject;
+        if (imageViewController)
+            return [self.galleryViewController.dataSource titleOfItem:imageViewController.item];
+    }
+    
+    return @"";
 }
 
 -(NSArray *)galleryItems {
@@ -517,7 +534,16 @@
                 }
             }];
         } else if (imageViewController.imageView.image != nil) {
-            UIActivityViewController *act = [UIActivityViewController.alloc initWithActivityItems:@[imageViewController.imageView.image] applicationActivities:nil];
+            
+            
+            NSMutableArray *items = [NSMutableArray new];
+            [items addObject:imageViewController.imageView.image];
+            
+            if ([self.galleryViewController.galleryDelegate respondsToSelector:@selector(galleryController:sharingTextForGalleryItem:)]) {
+                [items addObject:[self.galleryViewController.galleryDelegate galleryController:self sharingTextForGalleryItem:imageViewController.item]];
+            }
+            
+            UIActivityViewController *act = [UIActivityViewController.alloc initWithActivityItems:items applicationActivities:nil];
             [self presentViewController:act animated:YES completion:nil];
             
             if ([act respondsToSelector:@selector(popoverPresentationController)]) {
@@ -681,7 +707,13 @@
 -(void)updateTitleForIndex:(NSInteger)pageIndex{
     NSString *localizedString  = MHGalleryLocalizedString(@"imagedetail.title.current");
     if (self.navTitleLabel) {
-        self.navTitleLabel.text = [NSString stringWithFormat:localizedString,@(pageIndex+1),@(self.numberOfGalleryItems)];
+        if ([self.galleryViewController.dataSource respondsToSelector:@selector(subTitleOfItem:)]) {
+            MHImageViewController *imageViewController = (MHImageViewController*)self.pageViewController.viewControllers.firstObject;
+            if (imageViewController)
+                self.navTitleLabel.text = [self.galleryViewController.dataSource subTitleOfItem:imageViewController.item];
+        } else {
+            self.navTitleLabel.text = [NSString stringWithFormat:localizedString,@(pageIndex+1),@(self.numberOfGalleryItems)];
+        }
     } else {
         self.navigationItem.title = [NSString stringWithFormat:localizedString,@(pageIndex+1),@(self.numberOfGalleryItems)];
     }

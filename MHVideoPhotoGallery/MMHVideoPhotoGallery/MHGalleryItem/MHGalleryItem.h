@@ -25,6 +25,7 @@
 @property (nonatomic,assign) MHGalleryType       galleryType;
 
 @property (nonatomic, strong) PHAsset *asset;
+@property (nonatomic, strong) NSObject *data;
 
 - (instancetype)initWithPHAsset:(PHAsset *)asset;
 + (instancetype)itemWithPHAsset:(PHAsset *)asset;

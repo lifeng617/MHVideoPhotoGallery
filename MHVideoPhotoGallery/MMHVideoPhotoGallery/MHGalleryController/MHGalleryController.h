@@ -21,6 +21,9 @@
 -(void)galleryController:(MHGalleryController*)galleryController shouldRemoveItemAtIndex:(NSInteger)index resultBlock:(void (^)(BOOL))block;
 -(void)galleryController:(MHGalleryController*)galleryController didShowIndex:(NSInteger)index;
 -(BOOL)galleryController:(MHGalleryController*)galleryController shouldHandleURL:(NSURL *)URL;
+-(void)galleryControllerCameraTapped:(MHGalleryController*)galleryController;
+-(void)galleryControllerPlayTapped:(MHGalleryController*)galleryController fromIndex:(NSInteger)index;
+-(NSString *)galleryController:(MHGalleryController *)galleryController sharingTextForGalleryItem:(MHGalleryItem*)galleryItem;
 -(NSArray<MHBarButtonItem *>*)customizeableToolBarItems:(NSArray<MHBarButtonItem *>*)toolBarItems forGalleryItem:(MHGalleryItem*)galleryItem;
 @end
 
@@ -42,8 +45,11 @@
  */
 - (NSInteger)numberOfItemsInGallery:(MHGalleryController*)galleryController;
 - (NSArray *)itemArray;
-- (NSString *)titleOfGalleryController:(MHGalleryController *)galleryController;
 @optional
+- (NSString *)titleOfGalleryController:(MHGalleryController *)galleryController;
+- (NSString *)staticTitleOfGalleryController:(MHGalleryController *)galleryController;
+- (NSString *)titleOfItem:(MHGalleryItem *)item;
+- (NSString *)subTitleOfItem:(MHGalleryItem *)item;
 - (NSInteger)numberOfItemsInGallery:(MHGalleryController*)galleryController forType:(MHGalleryType)type;
 @end
 

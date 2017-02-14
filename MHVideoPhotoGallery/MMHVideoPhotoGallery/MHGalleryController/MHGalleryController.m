@@ -37,6 +37,17 @@
 +(instancetype)galleryWithPresentationStyle:(MHGalleryViewMode)presentationStyle{
     return [self.class.alloc initWithPresentationStyle:presentationStyle];
 }
+- (BOOL)prefersStatusBarHidden {
+    [self.topViewController prefersStatusBarHidden];
+}
+
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
+    return [self.topViewController supportedInterfaceOrientations];
+}
+
+- (BOOL) shouldAutorotate {
+    return [self.topViewController shouldAutorotate];
+}
 
 -(void)setGalleryItems:(NSArray *)galleryItems{
     _galleryItems = galleryItems;
