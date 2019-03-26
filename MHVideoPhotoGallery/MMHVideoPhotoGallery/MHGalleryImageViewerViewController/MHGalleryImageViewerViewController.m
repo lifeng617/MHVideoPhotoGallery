@@ -1091,6 +1091,17 @@
     }
 }
 
+- (CGFloat) topInset {
+    CGFloat topInset = 0;
+    if (@available(iOS 11.0, *)) {
+        if ([[[UIApplication sharedApplication] keyWindow] safeAreaInsets].top > 0) {
+            topInset = [[[UIApplication sharedApplication] keyWindow] safeAreaInsets].top - 20;
+        }
+    } else {
+        // Fallback on earlier versions
+    }
+    return topInset;
+}
 
 - (id)initWithMHMediaItem:(MHGalleryItem*)mediaItem
            viewController:(MHGalleryImageViewerViewController*)viewController{
@@ -1174,7 +1185,7 @@
         if (self.item.galleryType != MHGalleryTypeImage) {
             [self addPlayButtonToView];
             
-            self.moviePlayerToolBarTop = [UIToolbar.alloc initWithFrame:CGRectMake(0, self.navigationController.navigationBar.bounds.size.height+20, self.view.frame.size.width, 44)];
+            self.moviePlayerToolBarTop = [UIToolbar.alloc initWithFrame:CGRectMake(0, self.navigationController.navigationBar.bounds.size.height+20+[self topInset], self.view.frame.size.width, 44)];
             self.moviePlayerToolBarTop.autoresizingMask =UIViewAutoresizingFlexibleWidth;
             self.moviePlayerToolBarTop.alpha =0;
             self.moviePlayerToolBarTop.barTintColor = self.viewController.UICustomization.barTintColor;
@@ -1742,7 +1753,7 @@
                 }
             }
         }
-        self.moviePlayerToolBarTop.frame =CGRectMake(0,44+20, self.view.frame.size.width, 44);
+        self.moviePlayerToolBarTop.frame =CGRectMake(0,44+20+[self topInset], self.view.frame.size.width, 44);
         if (!MHISIPAD) {
             if (UIApplication.sharedApplication.statusBarOrientation != UIInterfaceOrientationPortrait) {
                 self.moviePlayerToolBarTop.frame =CGRectMake(0,32, self.view.frame.size.width, 44);
@@ -1889,7 +1900,7 @@
         if (UIInterfaceOrientationIsLandscape(toInterfaceOrientation)) {
             self.moviePlayerToolBarTop.frame = CGRectMake(0, self.navigationController.navigationBar.bounds.size.height, self.view.frame.size.width,44);
         } else {
-            self.moviePlayerToolBarTop.frame = CGRectMake(0, self.navigationController.navigationBar.bounds.size.height+20, self.view.frame.size.width,44);
+            self.moviePlayerToolBarTop.frame = CGRectMake(0, self.navigationController.navigationBar.bounds.size.height+20+[self topInset], self.view.frame.size.width,44);
         }
         self.leftSliderLabel.frame = CGRectMake(8, 0, 40, 43);
         self.rightSliderLabel.frame = CGRectMake(self.view.frame.size.width-20, 0, 50, 43);
